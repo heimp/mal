@@ -1,0 +1,2 @@
+#!/bin/bash
+exec golo golo --files $(dirname $0) --module ${STEP:-stepA_mal}

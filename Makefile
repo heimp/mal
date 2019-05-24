@@ -87,7 +87,7 @@ DOCKERIZE =
 #
 
 IMPLS = ada ada.2 awk bash basic bbc-basic c chuck clojure coffee common-lisp cpp crystal cs d dart \
-	elisp elixir elm erlang es6 factor fantom forth fsharp go groovy gnu-smalltalk \
+	elisp elixir elm erlang es6 factor fantom forth fsharp go golo groovy gnu-smalltalk \
 	guile haskell haxe hy io java js julia kotlin livescript logo lua make mal \
 	matlab miniMAL nasm nim objc objpascal ocaml perl perl6 php picolisp plpgsql \
 	plsql powershell ps python r racket rexx rpython ruby rust scala scheme skew \
@@ -204,6 +204,7 @@ fantom_STEP_TO_PROG =  fantom/lib/fan/$($(1)).pod
 forth_STEP_TO_PROG =   forth/$($(1)).fs
 fsharp_STEP_TO_PROG =  fsharp/$($(1)).exe
 go_STEP_TO_PROG =      go/$($(1))
+golo_STEP_TO_PROG =    golo/$($(1)).golo
 groovy_STEP_TO_PROG =  groovy/$($(1)).groovy
 gnu-smalltalk_STEP_TO_PROG = gnu-smalltalk/$($(1)).st
 guile_STEP_TO_PROG =   guile/$($(1)).scm
