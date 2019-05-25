@@ -1,2 +1,3 @@
 #!/bin/bash
-exec golo golo --files $(dirname $0) --module ${STEP:-stepA_mal}
+#exec golo golo --files $(dirname $0) --module ${STEP:-stepA_mal}
+exec $(dirname $0)/${STEP:-stepA_mal}.golo

@@ -78,7 +78,7 @@ function read_list = |reader| {
 function read_atom = |reader| {
   let atom = reader: next()
   try {
-    let integer = atom: parseInteger(atom)
+    let integer = atom: toInteger()
     return integer
   } catch (err) {
     return Symbol(atom)
