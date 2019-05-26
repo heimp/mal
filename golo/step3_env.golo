@@ -1,6 +1,6 @@
 #!/usr/bin/env golosh
 
-module step2_eval
+module step3_env
 
 import gololang.IO
 
@@ -8,13 +8,10 @@ import java.util.List
 
 import Mal.Reader
 import Mal.Printer
+import Mal.Environment
+import Mal.Types
 
-let repl_env = map[
-  [ "+", |a, b| -> a + b ],
-  [ "-", |a, b| -> a - b ],
-  [ "*", |a, b| -> a * b ],
-  [ "/", |a, b| -> a / b ]
-]
+let repl_env = Env(null)
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
@@ -23,8 +20,26 @@ local function EVAL = |ast, env| {
       if ast: empty() {
         return ast
       } else {
-        let fn, a, b = eval_ast(ast, env)
-        return fn(a, b)
+        let first, rest... = ast
+        case {
+          when first == ImmutableSymbol("def!") {
+            let key, value = rest
+            env: set(key, value)
+          }
+          when first == ImmutableSymbol("let*") {
+            let newEnv = Env(repl_env)
+            let bindings, form = rest
+            for (var i = 0, i < bindings: size(), i = i + 2) {
+              let newValue = EVAL(bindings: get(i + 1), newEnv)
+              newEnv: set(bindings: get(i), newValue)
+            }
+            return EVAL(form, newEnv)
+          }
+          otherwise {
+            let fn, a, b = eval_ast(ast, env)
+            return fn(a, b)
+          }
+        }
       }
     }
     otherwise { return eval_ast(ast, env) }
@@ -38,7 +53,7 @@ local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 function eval_ast = |ast, env| {
   case {
     when ast oftype Mal.Types.types.Symbol.class {
-      let fn = env: get(ast: name())
+      let fn = env: get(ast)
       if fn == null {
         raise("symbol not found! " + ast)
       }
@@ -53,8 +68,10 @@ function eval_ast = |ast, env| {
 
 function main = |args| {
 
-  require(rep("(+ 2 3)", repl_env) == "5", "Bad math! did not = 5")
-  require(rep("(+ 2 (* 3 4))", repl_env) == "14", "Bad math! did not = 14")
+  repl_env: set(ImmutableSymbol("+"), |a, b| -> a + b )
+  repl_env: set(ImmutableSymbol("-"), |a, b| -> a - b )
+  repl_env: set(ImmutableSymbol("*"), |a, b| -> a * b )
+  repl_env: set(ImmutableSymbol("/"), |a, b| -> a / b )
 
   let prompt = "user> "
 

@@ -81,6 +81,6 @@ function read_atom = |reader| {
     let integer = atom: toInteger()
     return integer
   } catch (err) {
-    return Symbol(atom)
+    return ImmutableSymbol(atom)
   }
 }
