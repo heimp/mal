@@ -1,9 +1,8 @@
 #!/usr/bin/env golosh
 
-module step3_env
+module step4_if_fn_do
 
 import gololang.IO
-import gololang.Functions
 
 import java.util.List
 
@@ -37,9 +36,34 @@ local function EVAL = |ast, env| {
       }
       return EVAL(form, newEnv)
     }
+    when first == ImmutableSymbol("do") {
+      return eval_ast(rest, env)
+    }
+    when first == ImmutableSymbol("if") {
+      let condition, thenBranch, elseBranch = rest
+      let evaluated = eval_ast(condition, env)
+      if evaluated != null and evaluated != false {
+        return eval_ast(thenBranch, env)
+      } else {
+        return eval_ast(elseBranch, env)
+      }
+    }
+    when first == ImmutableSymbol("fn*") {
+      println("making a fn outta " + rest)
+      let argNames, body... = rest
+      return |argValues| -> EVAL(body, Env(env, argNames, argValues))
+    }
+    when first oftype FunctionReference.class {
+      return first(rest)
+    }
+    when first oftype Mal.Types.types.Symbol.class {
+      println("otherwise! " + first + " and the rest is " + rest)
+      let fn, a, b = eval_ast(ast, env)
+      println("function name is " + fn + "and arg a is " + a + " arg b: " + b)
+      return fn(a, b)
+    }
     otherwise {
-      let fn, args... = eval_ast(ast, env)
-      return unary(fn)(args)
+      raise("couldn't recognize this type to EVAL! " + first)
     }
   }
 }

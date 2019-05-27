@@ -3,6 +3,7 @@
 module step2_eval
 
 import gololang.IO
+import gololang.Functions
 
 import java.util.List
 
@@ -18,22 +19,18 @@ let repl_env = map[
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  case {
-    when ast oftype List.class {
-      if ast: empty() {
-        return ast
-      } else {
-        let fn, a, b = eval_ast(ast, env)
-        return fn(a, b)
-      }
-    }
-    otherwise { return eval_ast(ast, env) }
+  if not (ast oftype List.class) {
+    return eval_ast(ast, env)
   }
+  if ast: empty() {
+    return ast
+  }
+  let fn, args... = eval_ast(ast, env)
+  return unary(fn)(args)
 }
 local function PRINT = |x| -> pr_str(x)
 
 local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
-# let rep = ^READ: andThen(^EVAL: bintAt(1, repl_env)): andThen(^PRINT)
 
 function eval_ast = |ast, env| {
   case {
