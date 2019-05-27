@@ -11,7 +11,6 @@ local function READ = |x| -> read_str(x)
 local function EVAL = |x| -> x
 local function PRINT = |x| -> pr_str(x)
 
-# local function rep = |x| -> PRINT(EVAL(READ(x)))
 let rep = ^READ: andThen(^EVAL): andThen(^PRINT)
 
 function main = |args| {
@@ -24,7 +23,11 @@ function main = |args| {
       println("bye!")
       break
     }
-    let result = rep(input)
-    println(result)
+    try {
+      let result = rep(input)
+      println(result)
+    } catch (err) {
+      println("error. try again.")
+    }
   }
 }

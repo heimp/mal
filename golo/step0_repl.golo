@@ -8,7 +8,6 @@ local function READ = |x| -> x
 local function EVAL = |x| -> x
 local function PRINT = |x| -> x
 
-# local function rep = |x| -> PRINT(EVAL(READ(x)))
 let rep = ^READ: andThen(^EVAL): andThen(^PRINT)
 
 function main = |args| {

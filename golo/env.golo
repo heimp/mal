@@ -7,8 +7,8 @@ function Env = |outer| -> Env(outer, map[])
 function Env = |outer, binds, exprs| {
   let data = map[]
   foreach i in [0..binds: size()] {
-    let a = binds: get(1)
-    let b = exprs: get(1)
+    let a = binds: get(i)
+    let b = exprs: get(i)
     data: put(a, b)
   }
   return Env(outer, data)

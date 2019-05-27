@@ -52,6 +52,11 @@ function tokenize = |input| {
       groups: add(group)
     }
   }
+
+  if not isBalanced(groups) {
+    raise("unbalanced brackets")
+  }
+
   return groups
 }
 
@@ -62,7 +67,7 @@ function read_form = |reader| -> match {
 
 function read_list = |reader| {
   reader: next() # eat the (
-  let forms = vector[]
+  let forms = list[]
   var token = reader: peek()
   while token != ")" {
     if token == null {
@@ -81,6 +86,39 @@ function read_atom = |reader| {
     let integer = atom: toInteger()
     return integer
   } catch (err) {
-    return ImmutableSymbol(atom)
+    return atom: asSymbol()
   }
+}
+
+function isBalanced = |tokens| {
+  var parens = 0
+  var braces = 0
+  var brackets = 0
+  foreach token in tokens {
+    case {
+      when token: isSymbol("(") { parens = parens + 1 }
+      when token: isSymbol("{") { braces = braces + 1 }
+      when token: isSymbol("[") { brackets = brackets + 1 }
+      when token: isSymbol(")") {
+        parens = parens - 1
+        if parens < 0 {
+          return false
+        }
+      }
+      when token: isSymbol("}") {
+        braces = braces - 1
+        if braces < 0 {
+          return false
+        }
+      }
+      when token: isSymbol("]") {
+        brackets = brackets - 1
+        if brackets < 0 {
+          return false
+        }
+      }
+      otherwise {}
+    }
+  }
+  return parens == 0 and braces == 0 and brackets == 0
 }

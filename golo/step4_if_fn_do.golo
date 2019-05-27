@@ -3,6 +3,7 @@
 module step4_if_fn_do
 
 import gololang.IO
+import gololang.Functions
 
 import java.util.List
 
@@ -15,7 +16,7 @@ let repl_env = Env(null)
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  if not (ast oftype List.class) {
+  if not ast: isList() {
     return eval_ast(ast, env)
   }
   if ast: empty() {
@@ -53,14 +54,13 @@ local function EVAL = |ast, env| {
       let argNames, body... = rest
       return |argValues| -> EVAL(body, Env(env, argNames, argValues))
     }
-    when first oftype FunctionReference.class {
+    when first: isFunction() {
       return first(rest)
     }
-    when first oftype Mal.Types.types.Symbol.class {
+    when first: isSymbol() {
       println("otherwise! " + first + " and the rest is " + rest)
-      let fn, a, b = eval_ast(ast, env)
-      println("function name is " + fn + "and arg a is " + a + " arg b: " + b)
-      return fn(a, b)
+      let fn, args... = eval_ast(ast, env)
+      return unary(fn)(args)
     }
     otherwise {
       raise("couldn't recognize this type to EVAL! " + first)
@@ -71,7 +71,7 @@ local function PRINT = |x| -> pr_str(x)
 
 local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 
-function eval_ast = |ast, env| {
+local function eval_ast = |ast, env| {
   case {
     when ast oftype Mal.Types.types.Symbol.class {
       let fn = env: get(ast)

@@ -16,7 +16,7 @@ let repl_env = Env(null)
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  if not (ast oftype List.class) {
+  if not ast: isList() {
     return eval_ast(ast, env)
   }
   if ast: empty() {
@@ -47,16 +47,16 @@ local function PRINT = |x| -> pr_str(x)
 
 local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 
-function eval_ast = |ast, env| {
+local function eval_ast = |ast, env| {
   case {
-    when ast oftype Mal.Types.types.Symbol.class {
+    when ast: isSymbol() {
       let fn = env: get(ast)
       if fn == null {
         raise("symbol not found! " + ast)
       }
       return fn
     }
-    when ast oftype List.class {
+    when ast: isList() {
       return ast: map(|x| -> EVAL(x, env))
     }
     otherwise { return ast }
@@ -65,10 +65,16 @@ function eval_ast = |ast, env| {
 
 function main = |args| {
 
-  repl_env: set(ImmutableSymbol("+"), |a, b| -> a + b )
-  repl_env: set(ImmutableSymbol("-"), |a, b| -> a - b )
-  repl_env: set(ImmutableSymbol("*"), |a, b| -> a * b )
-  repl_env: set(ImmutableSymbol("/"), |a, b| -> a / b )
+  repl_env: set("+": asSymbol(), |a, b| -> a + b )
+  repl_env: set("-": asSymbol(), |a, b| -> a - b )
+  repl_env: set("*": asSymbol(), |a, b| -> a * b )
+  repl_env: set("/": asSymbol(), |a, b| -> a / b )
+
+  require(rep("(def! a 6)", repl_env) == "6", "def doesn't work!")
+  require(rep("a", repl_env) == "6", "def doesn't work!")
+  require(rep("(def! b (+ a 2))", repl_env) == "8", "def doesn't work!")
+  require(rep("(+ a b)", repl_env) == "14", "def doesn't work!")
+  require(rep("(let* (c 2) c)", repl_env) == "2", "let doesn't work!")
 
   let prompt = "user> "
 

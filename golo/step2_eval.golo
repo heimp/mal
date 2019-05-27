@@ -9,6 +9,7 @@ import java.util.List
 
 import Mal.Reader
 import Mal.Printer
+import Mal.Types
 
 let repl_env = map[
   [ "+", |a, b| -> a + b ],
@@ -19,7 +20,8 @@ let repl_env = map[
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  if not (ast oftype List.class) {
+  println("EVAL and ast is " + ast)
+  if not ast: isList() {
     return eval_ast(ast, env)
   }
   if ast: empty() {
@@ -32,16 +34,17 @@ local function PRINT = |x| -> pr_str(x)
 
 local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 
-function eval_ast = |ast, env| {
+local function eval_ast = |ast, env| {
+  println("eval_ast and ast is " + ast)
   case {
-    when ast oftype Mal.Types.types.Symbol.class {
+    when ast: isSymbol() {
       let fn = env: get(ast: name())
       if fn == null {
         raise("symbol not found! " + ast)
       }
       return fn
     }
-    when ast oftype List.class {
+    when ast: isList() {
       return ast: map(|x| -> EVAL(x, env))
     }
     otherwise { return ast }
