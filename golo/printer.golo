@@ -14,6 +14,7 @@ function pr_str = |form| {
       return "(" + form: map(^pr_str): join(" ") + ")"
     }
     when form: isFunction() { return "#<function>" }
+    when form: isString() { return "\"" + form + "\"" }
     otherwise { raise("tried to print an unrecognized type: " + form)}
   }
 }

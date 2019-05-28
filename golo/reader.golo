@@ -80,13 +80,25 @@ function read_list = |reader| {
   return forms
 }
 
+let doubleQuotes = "\"" #"
+
 function read_atom = |reader| {
   let atom = reader: next()
   try {
     let integer = atom: toInteger()
     return integer
-  } catch (err) {
-    return atom: asSymbol()
+  } catch (err) {}
+  case {
+    when atom == "true" { return true }
+    when atom == "false" { return false }
+    when atom == "nil" { return null }
+    when atom: startsWith(":") {
+      return atom: replace(':', '0x29E')
+    }
+    when atom: startsWith(doubleQuotes) {
+      return atom: substring(1, atom: length() - 2)
+    }
+    otherwise { return atom: asSymbol()}
   }
 }
 

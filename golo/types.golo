@@ -18,4 +18,5 @@ augment java.lang.Object {
   function isString = |this| -> this oftype String.class
   function isVector = |this| -> this oftype java.util.ArrayList.class
   function isMap = |this| -> this oftype java.util.Map.class
+  function isIterable = |this| -> this oftype java.util.Iterable.class
 }

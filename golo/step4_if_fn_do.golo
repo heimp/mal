@@ -11,6 +11,7 @@ import Mal.Reader
 import Mal.Printer
 import Mal.Environment
 import Mal.Types
+import Mal.Core
 
 let repl_env = Env(null)
 
@@ -50,14 +51,8 @@ local function EVAL = |ast, env| {
       }
     }
     when first: isSymbol("fn*") {
-      let argNames, body... = rest
-      if argNames: empty() {
-        return -> EVAL(body, env)
-      }
-      if argNames: size() == 1 {
-        return |argValue| -> EVAL(body, Env(env, argNames, vector[argValue]))
-      }
-      return |argValues| -> EVAL(body, Env(env, argNames, argValues))
+      let argNames, body = rest
+      return |argValues...| -> EVAL(body, Env(env, argNames, argValues: asList()))
     }
     when first: isFunction() {
       return unary(first)(rest)
@@ -91,17 +86,14 @@ local function eval_ast = |ast, env| {
 
 function main = |args| {
 
-  repl_env: set(ImmutableSymbol("+"), |a, b| -> a + b )
-  repl_env: set(ImmutableSymbol("-"), |a, b| -> a - b )
-  repl_env: set(ImmutableSymbol("*"), |a, b| -> a * b )
-  repl_env: set(ImmutableSymbol("/"), |a, b| -> a / b )
+  ns(): each(|symbol, fn| { repl_env: set(symbol, fn) })
 
   let prompt = "user> "
 
   require(rep("(fn* (a) a)", repl_env) == "#<function>", "fn doesn't work!")
-  # require(rep("( (fn* (a) a) 7)", repl_env) == "7", "fn doesn't work!")
-  # require(rep("( (fn* (a) (+ a 1)) 10)", repl_env) == "11", "fn doesn't work!")
-  # require(rep("( (fn* (a b) (+ a b)) 2 3)", repl_env) == "5", "fn doesn't work!")
+  require(rep("( (fn* (a) a) 7)", repl_env) == "7", "fn doesn't work!")
+  require(rep("( (fn* (a) (+ a 1)) 10)", repl_env) == "11", "fn doesn't work!")
+  require(rep("( (fn* (a b) (+ a b)) 2 3)", repl_env) == "5", "fn doesn't work!")
 
   while true {
     let input = readln(prompt)

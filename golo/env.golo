@@ -5,8 +5,8 @@ struct Env = { outer, data }
 function Env = |outer| -> Env(outer, map[])
 
 function Env = |outer, binds, exprs| {
-  require(binds oftype java.util.List.class, "binds is not a list")
-  require(exprs oftype java.util.List.class, "exprs is not a list")
+  # require(binds: isIterable(), "binds is not a list")
+  # require(exprs: isIterable(), "exprs is not a list")
   let data = map[]
   foreach i in [0..binds: size()] {
     let a = binds: get(i)
