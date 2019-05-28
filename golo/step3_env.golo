@@ -24,11 +24,11 @@ local function EVAL = |ast, env| {
   }
   let first, rest... = ast
   case {
-    when first == ImmutableSymbol("def!") {
+    when first: isSymbol("def!") {
       let key, value = rest
       env: set(key, value)
     }
-    when first == ImmutableSymbol("let*") {
+    when first: isSymbol("let*") {
       let newEnv = Env(repl_env)
       let bindings, form = rest
       for (var i = 0, i < bindings: size(), i = i + 2) {

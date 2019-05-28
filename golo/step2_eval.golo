@@ -20,7 +20,6 @@ let repl_env = map[
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  println("EVAL and ast is " + ast)
   if not ast: isList() {
     return eval_ast(ast, env)
   }
@@ -35,7 +34,6 @@ local function PRINT = |x| -> pr_str(x)
 local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 
 local function eval_ast = |ast, env| {
-  println("eval_ast and ast is " + ast)
   case {
     when ast: isSymbol() {
       let fn = env: get(ast: name())
