@@ -93,7 +93,7 @@ function read_atom = |reader| {
     when atom == "false" { return false }
     when atom == "nil" { return null }
     when atom: startsWith(":") {
-      return atom: replace(':', '0x29E')
+      return atom: replace(":", "\u029E")
     }
     when atom: startsWith(doubleQuotes) {
       return atom: substring(1, atom: length() - 2)

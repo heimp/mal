@@ -17,7 +17,10 @@ let repl_env = Env(null)
 
 local function READ = |x| -> read_str(x)
 local function EVAL = |ast, env| {
-  if not ast: isList() {
+  if ast == null {
+    return null
+  }
+  if not ast?: isList() {
     return eval_ast(ast, env)
   }
   if ast: empty() {
@@ -69,6 +72,9 @@ local function rep = |x, env| -> PRINT(EVAL(READ(x), env))
 
 local function eval_ast = |ast, env| {
   case {
+    when ast == null {
+      return null
+    }
     when ast: isSymbol() {
       let fn = env: get(ast)
       if fn == null {

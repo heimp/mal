@@ -4,7 +4,9 @@ struct Symbol = { name }
 
 augment java.lang.String {
 
-  function asSymbol = |name| -> ImmutableSymbol(name)
+  function asSymbol = |this| -> ImmutableSymbol(this)
+  function asKeyword = |this| -> "\u029E" + this
+
 }
 
 augment java.lang.Object {
@@ -19,4 +21,6 @@ augment java.lang.Object {
   function isVector = |this| -> this oftype java.util.ArrayList.class
   function isMap = |this| -> this oftype java.util.Map.class
   function isIterable = |this| -> this oftype java.util.Iterable.class
+  function isKeyword = |this| -> this: isString() and this: startsWith("\u029E")
+  function isKeyword = |this, word| -> this: isKeyword() and this: substring(1) == word
 }
