@@ -20,7 +20,7 @@ local function EVAL = |ast, env| {
   if ast == null {
     return null
   }
-  if not ast?: isList() {
+  if not ast: isList() {
     return eval_ast(ast, env)
   }
   if ast: empty() {
@@ -86,7 +86,9 @@ local function eval_ast = |ast, env| {
       let mapped = ast: map(|x| -> EVAL(x, env))
       return mapped
     }
-    otherwise { return ast }
+    otherwise {
+      return ast
+    }
   }
 }
 

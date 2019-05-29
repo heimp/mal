@@ -61,19 +61,42 @@ function tokenize = |input| {
 }
 
 function read_form = |reader| -> match {
-  when reader: peek() == "(" then read_list(reader)
+  when reader: peek() == "(" then read_list(reader, "(")
+  when reader: peek() == "[" then read_list(reader, "[")
+  when reader: peek() == "{" then read_list(reader, "{")
   otherwise read_atom(reader)
 }
 
-function read_list = |reader| {
+function read_list = |reader, opener| {
+  let closer = match {
+    when opener == "(" then ")"
+    when opener == "[" then "]"
+    otherwise "}"
+  }
   reader: next() # eat the (
-  let forms = list[]
+  let forms = match {
+    when opener == "(" then list[]
+    when opener == "[" then vector[]
+    otherwise map[]
+  }
   var token = reader: peek()
-  while token != ")" {
+  while token != closer {
     if token == null {
       raise("unclosed list!")
     }
-    forms: add(read_form(reader))
+    if forms: isMap() {
+      let key = read_form(reader)
+      if not key: isString() {
+        raise("map keys can only be strings or keywords")
+      }
+      if reader: peek() == closer {
+        raise("maps need an even number of elements")
+      }
+      let value = read_form(reader)
+      forms: add(key, value)
+    } else {
+      forms: add(read_form(reader))
+    }
     token = reader: peek()
   }
   reader: next() # eat the )
@@ -96,7 +119,7 @@ function read_atom = |reader| {
       return atom: replace(":", "\u029E")
     }
     when atom: startsWith(doubleQuotes) {
-      return atom: substring(1, atom: length() - 2)
+      return atom: substring(1, atom: length() - 1)
     }
     otherwise { return atom: asSymbol()}
   }

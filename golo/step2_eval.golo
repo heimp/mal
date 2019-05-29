@@ -5,8 +5,6 @@ module step2_eval
 import gololang.IO
 import gololang.Functions
 
-import java.util.List
-
 import Mal.Reader
 import Mal.Printer
 import Mal.Types
