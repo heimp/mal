@@ -5,8 +5,7 @@ import gololang.Functions
 import Mal.Types
 import Mal.Printer
 
-let readable = ^pr_str\1
-let unreadable = ^pr_str\2: bindAt(1, false)
+local function stringify = |arr, readable| -> arr: asList(): map(|el| -> pr_str(el, readable)): join(" ")
 
 function ns = -> map[
   [ "+", ^add ],
@@ -22,8 +21,8 @@ function ns = -> map[
   [ "<=", swap(^le) ],
   [ ">", swap(^gt) ],
   [ ">=", swap(^ge) ],
-  [ "pr-str", |rest...| -> rest: asList(): map(readable): join(" ") ],
-  [ "str", |rest...| -> rest: asList(): map(unreadable): join(" ") ],
-  [ "prn", |rest...| -> println(rest: asList(): map(readable): join(" ")) ],
-  [ "println", |rest...| -> println(rest: asList(): map(unreadable): join(" ")) ]
+  [ "pr-str", |rest...| -> stringify(rest, true) ],
+  [ "str", |rest...| -> stringify(rest, false) ],
+  [ "prn", |rest...| -> println(stringify(rest, true)) ],
+  [ "println", |rest...| -> println(stringify(rest, false)) ]
 ]: map(|id, fn| -> mapEntry(id: asSymbol(), fn))

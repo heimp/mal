@@ -20,14 +20,13 @@ function pr_str = |form, print_readably| {
     }
     when form: isMap() {
       let p = ^pr_str\2: bindAt(1, print_readably)
-      # return "{" + form: entrySet(): map(|k, v| -> p(k) + " " + p(v)) + "}"
       return "{" + vector[ p(k) + " " + p(v) foreach k, v in form: entrySet() ]: join(" ") + "}"
     }
     when form: isFunction() { return "#<function>" }
     when form: isKeyword() { return ":" + form: substring(1) }
     when form: isString() {
       if print_readably {
-        return "\"" + form: replace("\"", "\\"): replace("\n", "\\n"): replace("\\", "\\\\")  + "\""
+        return "\"" + form: replace("\"", "\\\""): replace("\n", "\\n"): replace("\\", "\\\\")  + "\""
       } else {
         return "\"" + form + "\""
       }

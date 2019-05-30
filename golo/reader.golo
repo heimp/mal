@@ -42,7 +42,9 @@ function read_str = |input| {
 }
 
 function tokenize = |input| {
+
   require(input oftype String.class, "input must be a String")
+
   let pattern = compile("""[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)""") # |
   let matcher = pattern: matcher(input)
   let groups = vector[]
@@ -61,24 +63,19 @@ function tokenize = |input| {
 }
 
 function read_form = |reader| -> match {
-  when reader: peek() == "(" then read_list(reader, "(")
-  when reader: peek() == "[" then read_list(reader, "[")
-  when reader: peek() == "{" then read_list(reader, "{")
+  when reader: peek() == "(" then read_list(reader, "(", ")")
+  when reader: peek() == "[" then read_list(reader, "[", "]")
+  when reader: peek() == "{" then read_list(reader, "{", "}")
   otherwise read_atom(reader)
 }
 
-function read_list = |reader, opener| {
-  let closer = match {
-    when opener == "(" then ")"
-    when opener == "[" then "]"
-    otherwise "}"
-  }
-  reader: next() # eat the (
+function read_list = |reader, opener, closer| {
   let forms = match {
     when opener == "(" then list[]
     when opener == "[" then vector[]
     otherwise map[]
   }
+  reader: next() # eat the (
   var token = reader: peek()
   while token != closer {
     if token == null {
@@ -126,34 +123,32 @@ function read_atom = |reader| {
 }
 
 function isBalanced = |tokens| {
-  var parens = 0
-  var braces = 0
-  var brackets = 0
+
+  let openers = vector[]
+
+  let isOpener = |token| -> token == "(" or token == "[" or token == "{"
+  let isCloser = |token| -> token == ")" or token == "]" or token == "}"
+
+  let matchesLast = |closer| -> match {
+    when openers: isEmpty() then false
+    when openers: last() == "(" then closer == ")"
+    when openers: last() == "[" then closer == "]"
+    when openers: last() == "{" then closer == "}"
+    otherwise false
+  }
+
   foreach token in tokens {
     case {
-      when token: isSymbol("(") { parens = parens + 1 }
-      when token: isSymbol("{") { braces = braces + 1 }
-      when token: isSymbol("[") { brackets = brackets + 1 }
-      when token: isSymbol(")") {
-        parens = parens - 1
-        if parens < 0 {
-          return false
-        }
-      }
-      when token: isSymbol("}") {
-        braces = braces - 1
-        if braces < 0 {
-          return false
-        }
-      }
-      when token: isSymbol("]") {
-        brackets = brackets - 1
-        if brackets < 0 {
+      when isOpener(token) { openers: add(token) }
+      when isCloser(token) {
+        if matchesLast(token) {
+          openers: removeAt(openers: size() - 1)
+        } else {
           return false
         }
       }
       otherwise {}
     }
   }
-  return parens == 0 and braces == 0 and brackets == 0
+  return openers: isEmpty()
 }
