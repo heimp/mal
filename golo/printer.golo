@@ -19,8 +19,9 @@ function pr_str = |form, print_readably| {
       return "[" + form: map(|el| -> pr_str(el, print_readably)): join(" ") + "]"
     }
     when form: isMap() {
-      let ps = ^pr_str\2: bindAt(1, print_readably)
-      return "{" + form: map(|key, value| -> ps(key) + " " + ps(value)) + "}"
+      let p = ^pr_str\2: bindAt(1, print_readably)
+      # return "{" + form: entrySet(): map(|k, v| -> p(k) + " " + p(v)) + "}"
+      return "{" + vector[ p(k) + " " + p(v) foreach k, v in form: entrySet() ]: join(" ") + "}"
     }
     when form: isFunction() { return "#<function>" }
     when form: isKeyword() { return ":" + form: substring(1) }
