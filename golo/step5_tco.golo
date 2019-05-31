@@ -40,19 +40,24 @@ local function EVAL = |ast, env| {
           let newValue = EVAL(bindings: get(i + 1), newEnv)
           newEnv: set(bindings: get(i), newValue)
         }
-        return EVAL(form, newEnv)
+        env = newEnv
+        ast = ast: get(2)
+        continue
       }
       when first: isSymbol("do") {
-        return eval_ast(rest, env)
+        ast = eval_ast(rest: asList(): subList(0, rest: size() - 1))
+        ast = rest: last()
+        continue
       }
       when first: isSymbol("if") {
         let condition, thenBranch, elseBranch = rest
         let evaluated = eval_ast(condition, env)
         if evaluated != null and evaluated != false {
-          return eval_ast(thenBranch, env)
+          ast = eval_ast(thenBranch, env)
         } else {
-          return eval_ast(elseBranch, env)
+          ast = eval_ast(elseBranch, env)
         }
+        continue
       }
       when first: isSymbol("fn*") {
         let argNames, body = rest
@@ -65,7 +70,7 @@ local function EVAL = |ast, env| {
         let fn, args... = eval_ast(ast, env)
         return unary(fn)(args)
       }
-    }    
+    }
   }
 }
 local function PRINT = |x| -> pr_str(x)
