@@ -16,7 +16,9 @@ import Mal.Core
 let repl_env = Env(null)
 
 local function READ = |x| -> read_str(x)
-local function EVAL = |ast, env| {
+local function EVAL = |initialAst, initialEnv| {
+  var ast = initialAst
+  var env = initialEnv
   while true {
     if ast == null {
       return null
@@ -89,9 +91,11 @@ local function eval_ast = |ast, env| {
       }
       return fn
     }
-    when ast: isList() {
-      let mapped = ast: map(|x| -> EVAL(x, env))
-      return mapped
+    when ast: isList() or ast: isVector() {
+      return ast: map(|x| -> EVAL(x, env))
+    }
+    when ast: isMap() {
+      return list[ list [ k, EVAL(v, env) ] foreach k, v in ast: entrySet() ]
     }
     otherwise {
       return ast

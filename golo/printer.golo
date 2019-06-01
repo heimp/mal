@@ -10,13 +10,15 @@ function pr_str = |form, print_readably| {
   case {
     when form == null { return "nil" }
     when form: isSymbol() { return form: name() }
-    when form: isInteger() { return form: toString() }
-    when form: isBoolean() { return form: toString() }
-    when form: isList() {
-      return "(" + form: map(|el| -> pr_str(el, print_readably)): join(" ") + ")"
+    when form: isInteger() or form: isBoolean() {
+      return form: toString()
     }
-    when form: isVector() {
-      return "[" + form: map(|el| -> pr_str(el, print_readably)): join(" ") + "]"
+    when form: isList() or form: isVector() {
+      let opener, closer = match {
+        when form: isList() then ["(", ")"]
+        otherwise ["[", "]"]
+      }
+      return opener + form: map(|el| -> pr_str(el, print_readably)): join(" ") + closer
     }
     when form: isMap() {
       let p = ^pr_str\2: bindAt(1, print_readably)

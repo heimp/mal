@@ -63,11 +63,11 @@ function tokenize = |input| {
 }
 
 function read_form = |reader| -> match {
-  when reader: peek() == "(" then read_list(reader, "(", ")")
-  when reader: peek() == "[" then read_list(reader, "[", "]")
-  when reader: peek() == "{" then read_list(reader, "{", "}")
+  when peeked == "(" then read_list(reader, "(", ")")
+  when peeked == "[" then read_list(reader, "[", "]")
+  when peeked == "{" then read_list(reader, "{", "}")
   otherwise read_atom(reader)
-}
+} with { peeked = reader: peek() }
 
 function read_list = |reader, opener, closer| {
   let forms = match {
