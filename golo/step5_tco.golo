@@ -34,6 +34,7 @@ local function EVAL = |initialAst, initialEnv| {
       when first: isSymbol("def!") {
         let key, value = rest
         env: set(key, EVAL(value, env))
+        return null
       }
       when first: isSymbol("let*") {
         let newEnv = Env(repl_env)
@@ -95,7 +96,7 @@ local function eval_ast = |ast, env| {
       return ast: map(|x| -> EVAL(x, env))
     }
     when ast: isMap() {
-      return list[ list [ k, EVAL(v, env) ] foreach k, v in ast: entrySet() ]
+      return list[ list[ k, EVAL(v, env) ] foreach k, v in ast: entrySet() ]
     }
     otherwise {
       return ast

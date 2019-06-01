@@ -2,11 +2,12 @@ module Mal.Types
 
 struct Symbol = { name }
 
+struct MalFn = { ast, params, env, fn }
+
 augment java.lang.String {
 
   function asSymbol = |this| -> ImmutableSymbol(this)
   function asKeyword = |this| -> "\u029E" + this
-
 }
 
 augment java.lang.Object {
@@ -23,4 +24,5 @@ augment java.lang.Object {
   function isIterable = |this| -> this oftype java.util.Iterable.class
   function isKeyword = |this| -> this: isString() and this: startsWith("\u029E")
   function isKeyword = |this, word| -> this: isKeyword() and this: substring(1) == word
+  function isMalFn = |this| this oftype Mal.Types.types.MalFn
 }
