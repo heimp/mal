@@ -71,7 +71,14 @@ local function EVAL = |initialAst, initialEnv| {
       }
       otherwise {
         let fn, args... = eval_ast(ast, env)
-        return unary(fn)(args)
+        case {
+          when fn: isFunction() { return unary(fn)(args) }
+          when fn: isMalFn() {
+            ast = fn: ast()
+            env = Env(env, )
+          }
+          otherwise {code}
+        }
       }
     }
   }
